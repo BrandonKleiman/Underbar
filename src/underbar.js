@@ -7,26 +7,27 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+    return val;
   };
 
   /**
-   * COLLECTIONS
-   * ===========
-   *
-   * In this section, we'll have a look at functions that operate on collections
-   * of values; in JavaScript, a 'collection' is something that can contain a
-   * number of values--either an array or an object.
-   *
-   *
-   * IMPORTANT NOTE!
-   * ===========
-   *
-   * The .first function is implemented for you, to help guide you toward success
-   * in your work on the following functions. Whenever you see a portion of the
-   * assignment pre-completed, be sure to read and understand it fully before
-   * you proceed. Skipping this step will lead to considerably more difficulty
-   * implementing the sections you are responsible for.
-   */
+  * COLLECTIONS
+  * ===========
+  *
+  * In this section, we'll have a look at functions that operate on collections
+  * of values; in JavaScript, a 'collection' is something that can contain a
+  * number of values--either an array or an object.
+  *
+  *
+  * IMPORTANT NOTE!
+  * ===========
+  *
+  * The .first function is implemented for you, to help guide you toward success
+  * in your work on the following functions. Whenever you see a portion of the
+  * assignment pre-completed, be sure to read and understand it fully before
+  * you proceed. Skipping this step will lead to considerably more difficulty
+  * implementing the sections you are responsible for.
+  */
 
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
@@ -37,6 +38,8 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if (n > array.length) { return array }
+    return n === undefined ? array[array.length-1] : array.slice(array.length-n, array.length);
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -45,6 +48,16 @@
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+    var i = 0;
+    if (Array.isArray(collection)) {
+      for (i; i < collection.length; i++) {
+        iterator(collection[i], i, collection);
+      }
+    } else {
+      for (var key in collection) {
+        iterator(collection[key], key, collection);
+      }
+    }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -66,17 +79,44 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var newArray = [];
+    for (var i = 0; i < collection.length; i++) {
+      if (test(collection[i])) {
+        newArray.push(collection[i])
+      }
+    }
+    return newArray;
+
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
-    // TIP: see if you can re-use _.filter() here, without simply
-    // copying code in and modifying it
+    var newArray = [];
+    for (var i = 0; i < collection.length; i++) {
+      if (test(collection[i]) === false) {
+        newArray.push(collection[i])
+      }
+    }
+    return newArray;
+
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
-  };
+    var checker = false;
+    var newArray = [];
+    for (var i = 0; i < array.length; i++) {
+      checker = false;
+      for (var j = 0; j < newArray.length; j++) {
+        if (newArray[j] === array[i]) {
+          checker = true;
+        } }
+        if (checker !== true) {
+          newArray.push(array[i])
+        }
+      }
+      return newArray;
+    };
 
 
   // Return the results of applying an iterator to each element.
@@ -84,13 +124,18 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+      var results = [];
+      for (var i=0; i<collection.length; i++) {
+        results.push(iterator(collection[i]))
+}
+      return results;
   };
 
   /*
-   * TIP: map is really handy when you want to transform an array of
-   * values into a new array of values. _.pluck() is solved for you
-   * as an example of this.
-   */
+  * TIP: map is really handy when you want to transform an array of
+  * values into a new array of values. _.pluck() is solved for you
+  * as an example of this.
+  */
 
   // Takes an array of objects and returns and array of the values of
   // a certain property in it. E.g. take an array of people and return
@@ -107,24 +152,37 @@
   // Reduces an array or object to a single value by repetitively calling
   // iterator(accumulator, item) for each item. accumulator should be
   // the return value of the previous iterator call.
-  //  
+  //
   // You can pass in a starting value for the accumulator as the third argument
   // to reduce. If no starting value is passed, the first element is used as
   // the accumulator, and is never passed to the iterator. In other words, in
   // the case where a starting value is not passed, the iterator is not invoked
   // until the second element, with the first element as its second argument.
-  //  
+  //
   // Example:
   //   var numbers = [1,2,3];
   //   var sum = _.reduce(numbers, function(total, number){
   //     return total + number;
   //   }, 0); // should be 6
-  //  
+  //
   //   var identity = _.reduce([5], function(total, number){
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    var result = 0;
+    if (accumulator === undefined) {
+      result = collection[0];
+      for (var i = 1; i < collection.length; i++) {
+        result = iterator(result, collection[i]);
+      }
+    } else {
+      result = accumulator;
+      for (var i = 0; i < collection.length; i++) {
+        result = iterator(result, collection[i]);
+      }
+    }
+    return result;
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -153,11 +211,11 @@
 
 
   /**
-   * OBJECTS
-   * =======
-   *
-   * In this section, we'll look at a couple of helpers for merging objects.
-   */
+  * OBJECTS
+  * =======
+  *
+  * In this section, we'll look at a couple of helpers for merging objects.
+  */
 
   // Extend a given object with all the properties of the passed in
   // object(s).
@@ -180,12 +238,12 @@
 
 
   /**
-   * FUNCTIONS
-   * =========
-   *
-   * Now we're getting into function decorators, which take in any function
-   * and return out a new version of the function that works somewhat differently
-   */
+  * FUNCTIONS
+  * =========
+  *
+  * Now we're getting into function decorators, which take in any function
+  * and return out a new version of the function that works somewhat differently
+  */
 
   // Return a function that can be called at most one time. Subsequent calls
   // should return the previously returned value.
@@ -232,9 +290,9 @@
 
 
   /**
-   * ADVANCED COLLECTION OPERATIONS
-   * ==============================
-   */
+  * ADVANCED COLLECTION OPERATIONS
+  * ==============================
+  */
 
   // Randomizes the order of an array's contents.
   //
@@ -246,12 +304,12 @@
 
 
   /**
-   * ADVANCED
-   * =================
-   *
-   * Note: This is the end of the pre-course curriculum. Feel free to continue,
-   * but nothing beyond here is required.
-   */
+  * ADVANCED
+  * =================
+  *
+  * Note: This is the end of the pre-course curriculum. Feel free to continue,
+  * but nothing beyond here is required.
+  */
 
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
